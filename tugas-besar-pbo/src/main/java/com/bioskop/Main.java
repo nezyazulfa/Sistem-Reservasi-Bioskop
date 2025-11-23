@@ -2,7 +2,6 @@ package com.bioskop;
 
 import com.bioskop.data.CinemaData;
 import com.bioskop.model.Film;
-import com.bioskop.tiket.*;
 import com.bioskop.strategy.*;
 
 // Imports untuk GUI
@@ -37,15 +36,20 @@ public class Main extends JFrame {
     // Komponen GUI
     private JTable tableFilm;
     private DefaultTableModel tableModel;
-    private JSpinner spinnerTiket, spinnerPopcorn, spinnerSoftdrink, spinnerVip;
+    private JSpinner spinnerTiket;
+    private JSpinner spinnerPopcorn;
+    private JSpinner spinnerSoftdrink;
+    private JSpinner spinnerVip;
     private JComboBox<String> comboStrategy;
     private JTextArea areaStruk;
-    private JLabel labelFilmTerpilih, labelHargaPreview;
-    private JButton btnHitung, btnCetak;
+    private JLabel labelFilmTerpilih;
+    private JLabel labelHargaPreview;
+    private JButton btnHitung;
+    private JButton btnCetak;
 
     // Data Backend
-    private CinemaData database;
-    private Film selectedFilm;
+    private transient CinemaData database;
+    private transient Film selectedFilm;
 
     public Main() {
         database = CinemaData.getInstance();
@@ -129,6 +133,7 @@ public class Main extends JFrame {
 
         String[] columnNames = {"Judul Film", "Genre", "Harga Dasar"};
         tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
         
@@ -165,6 +170,7 @@ public class Main extends JFrame {
         header.setReorderingAllowed(false);
         
         DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -181,6 +187,7 @@ public class Main extends JFrame {
         }
         
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+            @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -258,16 +265,25 @@ public class Main extends JFrame {
         contentPanel.add(Box.createVerticalStrut(5));
 
         // Spinner Inputs (Jarak antar elemen dirapatkan)
-        contentPanel.add(createSpinnerPanel("Jumlah Tiket:", spinnerTiket = createSpinner()));
+
+        // 1. Tiket
+        spinnerTiket = createSpinner();
+        contentPanel.add(createSpinnerPanel("Jumlah Tiket:", spinnerTiket));
         contentPanel.add(Box.createVerticalStrut(5));
-        
-        contentPanel.add(createSpinnerPanel("Popcorn (+25rb):", spinnerPopcorn = createSpinner()));
+
+        // 2. Popcorn
+        spinnerPopcorn = createSpinner();
+        contentPanel.add(createSpinnerPanel("Popcorn (+25rb):", spinnerPopcorn));
         contentPanel.add(Box.createVerticalStrut(5));
-        
-        contentPanel.add(createSpinnerPanel("Softdrink (+15rb):", spinnerSoftdrink = createSpinner()));
+
+        // 3. Softdrink
+        spinnerSoftdrink = createSpinner();
+        contentPanel.add(createSpinnerPanel("Softdrink (+15rb):", spinnerSoftdrink));
         contentPanel.add(Box.createVerticalStrut(5));
-        
-        contentPanel.add(createSpinnerPanel("Upgrade VIP (+50rb):", spinnerVip = createSpinner()));
+
+        // 4. VIP
+        spinnerVip = createSpinner();
+        contentPanel.add(createSpinnerPanel("Upgrade VIP (+50rb):", spinnerVip));
         contentPanel.add(Box.createVerticalStrut(10));
 
         // Strategy Section
@@ -349,10 +365,12 @@ public class Main extends JFrame {
         
         // Memastikan warna font tetap saat di-hover
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btn.setBackground(hoverColor);
                 btn.setForeground(textColor);
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 btn.setBackground(normalColor);
                 btn.setForeground(textColor);
@@ -549,8 +567,8 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new Main().setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
     }
+
+    
 }
