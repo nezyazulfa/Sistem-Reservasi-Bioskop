@@ -10,45 +10,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * IMPLEMENTASI SINGLETON PATTERN
- * Class ini bertindak sebagai In-Memory Database pusat.
+ * IMPLEMENTASI SINGLETON PATTERN (Enum Implementation)
+ * Ini adalah cara paling aman dan disukai SonarQube untuk membuat Singleton.
  */
-public class CinemaData implements Repository<Film> { // Kita implement generic khusus Film disini
+@SuppressWarnings("java:S6548")
+public enum CinemaData implements Repository<Film> {
     
-    // 1. Static variable untuk menyimpan satu-satunya instance
-    private static CinemaData instance;
+    // 1. Instance Singleton didefinisikan sebagai Enum Constant
+    INSTANCE;
 
-    // 2. JAVA COLLECTION FRAMEWORK
-    // ArrayList untuk Film (karena butuh urutan untuk ditampilkan di Tabel GUI)
-    private List<Film> filmList;
-    
-    // HashMap untuk User (agar Login cepat / O(1) complexity)
-    private Map<String, User> userMap;
+    // 2. Variable Data (Non-static karena Enum ini sudah Singleton)
+    private final List<Film> filmList;
+    private final Map<String, User> userMap;
 
-    // 3. Private Constructor (Agar tidak bisa di-new dari luar)
-    private CinemaData() {
+    // 3. Constructor Enum (Otomatis private & dipanggil sekali saat program jalan)
+    CinemaData() {
         filmList = new ArrayList<>();
         userMap = new HashMap<>();
-        seedData(); // Isi data palsu saat aplikasi mulai
+        seedData();
     }
 
-    // 4. Public Access Point (Thread Safe)
-    public static synchronized CinemaData getInstance() {
-        if (instance == null) {
-            instance = new CinemaData();
-        }
-        return instance;
+    // 4. Helper Method agar Main.java tidak perlu diubah kodenya
+    // Main.java tetap bisa panggil CinemaData.getInstance()
+    public static CinemaData getInstance() {
+        return INSTANCE;
     }
 
-    // Method Seeding Data (Agar GUI tidak kosong)
+    // Method Seeding Data
     private void seedData() {
-        // Data Film
         add(new Film("Avatar: The Way of Water", "Sci-Fi", 50000));
         add(new Film("The Super Mario Bros", "Animation", 40000));
         add(new Film("John Wick 4", "Action", 55000));
         add(new Film("Evil Dead Rise", "Horror", 45000));
 
-        // Data User (Admin & Customer)
         userMap.put("admin", new User("admin", "admin123", "ADMIN"));
         userMap.put("budi", new User("budi", "12345", "CUSTOMER"));
     }

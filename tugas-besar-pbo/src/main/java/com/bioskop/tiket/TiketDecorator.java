@@ -4,7 +4,7 @@ package com.bioskop.tiket;
 public abstract class TiketDecorator implements Tiket {
     protected Tiket tiket; // Reference ke objek yang akan dihias
 
-    public TiketDecorator(Tiket tiket) {
+    protected TiketDecorator(Tiket tiket) {
         this.tiket = tiket;
     }
 
