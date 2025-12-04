@@ -1,24 +1,31 @@
 package com.bioskop.model;
 
-public class Film {
+import java.io.Serializable;
+
+// IMPLEMENTS SERIALIZABLE AGAR BISA DISIMPAN KE FILE
+public class Film implements Serializable {
+    private static final long serialVersionUID = 1L; // Versi Serialization
+
     private String title;
     private String genre;
     private double price;
+    private int stock;
 
-    // Constructor
-    public Film(String title, String genre, double price) {
+    public Film(String title, String genre, double price, int stock) {
         this.title = title;
         this.genre = genre;
         this.price = price;
+        this.stock = stock;
     }
 
-    // Getters (Clean Code: Immutable fields where possible)
     public String getTitle() { return title; }
     public String getGenre() { return genre; }
     public double getPrice() { return price; }
+    public int getStock() { return stock; }
 
-    @Override
-    public String toString() {
-        return title + " (" + genre + ") - Rp" + price;
+    public void reduceStock(int amount) {
+        if (amount <= stock) {
+            this.stock -= amount;
+        }
     }
 }

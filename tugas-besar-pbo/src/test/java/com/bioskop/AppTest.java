@@ -29,7 +29,8 @@ public class AppTest {
     // 2. TEST DECORATOR PATTERN
     @Test
     public void testDecoratorTiket() {
-        Film film = new Film("Test Movie", "Action", 50000);
+        // UPDATE: Tambahkan parameter ke-4 (Stok) misal 50
+        Film film = new Film("Test Movie", "Action", 50000, 50);
         
         // Beli Tiket Polos (50.000)
         Tiket tiket = new TiketFilm(film);

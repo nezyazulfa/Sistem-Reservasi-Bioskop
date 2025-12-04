@@ -1,78 +1,108 @@
 package com.bioskop.data;
 
 import com.bioskop.model.Film;
-import com.bioskop.model.User;
 import com.bioskop.util.Repository;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * IMPLEMENTASI SINGLETON PATTERN (Enum Implementation)
- * Ini adalah cara paling aman dan disukai SonarQube untuk membuat Singleton.
- */
-@SuppressWarnings("java:S6548")
-public enum CinemaData implements Repository<Film> {
+public class CinemaData implements Repository<Film> {
     
-    // 1. Instance Singleton didefinisikan sebagai Enum Constant
-    INSTANCE;
+    private static CinemaData instance;
+    private List<Film> filmList;
+    private Map<String, Integer> inventory; 
+    
+    // NAMA FILE DATABASE FISIK
+    private static final String DB_FILE = "cinema_database.dat";
 
-    // 2. Variable Data (Non-static karena Enum ini sudah Singleton)
-    private final List<Film> filmList;
-    private final Map<String, User> userMap;
-
-    // 3. Constructor Enum (Otomatis private & dipanggil sekali saat program jalan)
-    CinemaData() {
-        filmList = new ArrayList<>();
-        userMap = new HashMap<>();
-        seedData();
-    }
-
-    // 4. Helper Method agar Main.java tidak perlu diubah kodenya
-    // Main.java tetap bisa panggil CinemaData.getInstance()
-    public static CinemaData getInstance() {
-        return INSTANCE;
-    }
-
-    // Method Seeding Data
-    private void seedData() {
-        add(new Film("Avatar: The Way of Water", "Sci-Fi", 50000));
-        add(new Film("The Super Mario Bros", "Animation", 40000));
-        add(new Film("John Wick 4", "Action", 55000));
-        add(new Film("Evil Dead Rise", "Horror", 45000));
-
-        userMap.put("admin", new User("admin", "admin123", "ADMIN"));
-        userMap.put("budi", new User("budi", "12345", "CUSTOMER"));
-    }
-
-    // --- Implementasi Generic Repository untuk Film ---
-    @Override
-    public void add(Film item) {
-        filmList.add(item);
-    }
-
-    @Override
-    public List<Film> getAll() {
-        return filmList;
-    }
-
-    @Override
-    public void delete(Film item) {
-        filmList.remove(item);
-    }
-
-    // --- Method Khusus User (HashMap Logic) ---
-    public boolean isValidUser(String username, String password) {
-        if (userMap.containsKey(username)) {
-            User u = userMap.get(username);
-            return u.getPassword().equals(password);
+    // PERBAIKAN: Hapus @SuppressWarnings("unchecked") di sini karena tidak perlu
+    private CinemaData() {
+        // Coba LOAD data dari file dulu
+        if (!loadData()) {
+            // Kalau file belum ada (Run pertama kali), buat data baru
+            filmList = new ArrayList<>();
+            inventory = new HashMap<>(); 
+            seedData();
         }
-        return false;
+    }
+
+    public static synchronized CinemaData getInstance() {
+        if (instance == null) {
+            instance = new CinemaData();
+        }
+        return instance;
+    }
+
+    private void seedData() {
+        // Data Awal (Hanya dipakai jika file database belum ada)
+        add(new Film("Avatar: The Way of Water", "Sci-Fi", 50000, 30));
+        add(new Film("The Super Mario Bros", "Animation", 40000, 20));
+        add(new Film("John Wick 4", "Action", 55000, 15));
+        add(new Film("Evil Dead Rise", "Horror", 45000, 50));
+
+        inventory.put("Popcorn", 100);   
+        inventory.put("Softdrink", 100); 
+        saveData(); // Simpan data awal ke file
+    }
+
+    // --- LOGIC PENYIMPANAN PERMANEN (FILE I/O) ---
+    public void saveData() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(DB_FILE))) {
+            oos.writeObject(filmList);
+            oos.writeObject(inventory);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Tetap biarkan @SuppressWarnings di sini karena casting terjadi di sini
+    @SuppressWarnings("unchecked")
+    private boolean loadData() {
+        File file = new File(DB_FILE);
+        if (!file.exists()) return false; // File gak ada, return false
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(DB_FILE))) {
+            filmList = (List<Film>) ois.readObject();
+            inventory = (Map<String, Integer>) ois.readObject();
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    // --- Inventory Methods ---
+    public int getItemStock(String itemName) {
+        return inventory.getOrDefault(itemName, 0);
+    }
+
+    public void reduceItemStock(String itemName, int amount) {
+        if (inventory.containsKey(itemName)) {
+            int currentStock = inventory.get(itemName);
+            inventory.put(itemName, currentStock - amount);
+            saveData(); // SAVE SETIAP ADA PERUBAHAN
+        }
+    }
+
+    // --- Repository Methods ---
+    @Override
+    public void add(Film item) { 
+        filmList.add(item); 
+        saveData(); // SAVE SETIAP ADA FILM BARU
+    }
+
+    @Override
+    public List<Film> getAll() { return filmList; }
+
+    @Override
+    public void delete(Film item) { 
+        filmList.remove(item); 
+        saveData();
     }
     
-    public User getUser(String username) {
-        return userMap.get(username);
+    public void updateFilmStock() {
+        saveData();
     }
 }
