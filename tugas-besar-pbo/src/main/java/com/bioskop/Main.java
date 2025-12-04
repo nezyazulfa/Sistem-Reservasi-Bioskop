@@ -285,7 +285,7 @@ public class Main extends JFrame {
         contentPanel.add(Box.createVerticalStrut(15)); 
 
         // Inputs
-        contentPanel.add(createStyledLabel("Tambahan (Decorator Pattern):"));
+        contentPanel.add(createStyledLabel("Tambahan:"));
         contentPanel.add(Box.createVerticalStrut(5));
 
         spinnerTiket = createSpinner();
@@ -304,7 +304,7 @@ public class Main extends JFrame {
         contentPanel.add(createSpinnerPanel("Upgrade VIP (+50rb):", spinnerVip));
         contentPanel.add(Box.createVerticalStrut(10));
 
-        contentPanel.add(createStyledLabel("Kalkulasi Harga (Strategy Pattern):"));
+        contentPanel.add(createStyledLabel("Kalkulasi Harga:"));
         contentPanel.add(Box.createVerticalStrut(5));
 
         String[] options = {"Harga Normal", "Weekend (+Rp 10.000)", "Member (Diskon 10%)"};
@@ -539,28 +539,27 @@ public class Main extends JFrame {
 
         // --- Cetak Struk ---
         StringBuilder struk = new StringBuilder();
-        struk.append("==================================================%n");
-        struk.append("          CINEMA BOOKING SYSTEM - KELAS 2C        %n");
-        struk.append("       Tugas Besar Pemrograman Berorientasi Objek %n");
-        struk.append("==================================================%n");
+        struk.append(String.format("==================================================%n"));
+        struk.append(String.format("          CINEMA BOOKING SYSTEM - KELAS 2C        %n"));
+        struk.append(String.format("       Tugas Besar Pemrograman Berorientasi Objek %n"));
+        struk.append(String.format("==================================================%n"));
         struk.append(String.format(" Film        : %-30s%n", truncate(selectedFilm.getTitle(), 30)));
         struk.append(String.format(" Genre       : %-30s%n", truncate(selectedFilm.getGenre(), 30)));
-        struk.append("==================================================%n");
-        struk.append(" DETAIL PESANAN:%n");
+        struk.append(String.format("==================================================%n"));
+        struk.append(String.format(" DETAIL PESANAN:%n"));
         struk.append(String.format(" Tiket Reguler        : %2d x %-15s%n", jumlahTiket, formatRupiah(selectedFilm.getPrice())));
         
         if (jumlahPopcorn > 0) struk.append(String.format(" Popcorn Large        : %2d x %-15s%n", jumlahPopcorn, "Rp25.000,00"));
         if (jumlahSoftdrink > 0) struk.append(String.format(" Softdrink            : %2d x %-15s%n", jumlahSoftdrink, "Rp15.000,00"));
         if (jumlahVip > 0) struk.append(String.format(" Upgrade VIP Seat     : %2d x %-15s%n", jumlahVip, "Rp50.000,00"));
         
-        struk.append("==================================================%n");
+        struk.append(String.format("==================================================%n"));
         struk.append(String.format(" Subtotal    : %-30s%n", formatRupiah(hargaTotal)));
-        struk.append("---------------------------------------------------%n");
+        struk.append(String.format("---------------------------------------------------%n"));
         struk.append(String.format(" Metode      : %-30s%n", truncate(tipeBayar, 30)));
         struk.append(String.format(" TOTAL BAYAR : %-30s%n", formatRupiah(hargaAkhir)));
-        struk.append("==================================================%n");
-        struk.append(" Terima kasih! Happy Watching!%n");
-        struk.append(" Design Patterns: Singleton | Decorator | Strategy");
+        struk.append(String.format("==================================================%n"));
+        struk.append(String.format(" Terima kasih! Happy Watching!%n"));
 
         areaStruk.setText(struk.toString());
         btnCetak.setEnabled(true); 
