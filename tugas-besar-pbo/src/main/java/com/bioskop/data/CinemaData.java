@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("java:S6548")
 public class CinemaData implements Repository<Film> {
     
     private static CinemaData instance;
@@ -18,7 +19,6 @@ public class CinemaData implements Repository<Film> {
     // NAMA FILE DATABASE FISIK
     private static final String DB_FILE = "cinema_database.dat";
 
-    // PERBAIKAN: Hapus @SuppressWarnings("unchecked") di sini karena tidak perlu
     private CinemaData() {
         // Coba LOAD data dari file dulu
         if (!loadData()) {
@@ -79,11 +79,10 @@ public class CinemaData implements Repository<Film> {
     }
 
     public void reduceItemStock(String itemName, int amount) {
-        if (inventory.containsKey(itemName)) {
-            int currentStock = inventory.get(itemName);
-            inventory.put(itemName, currentStock - amount);
+        inventory.computeIfPresent(itemName, (key, currentStock) -> {
             saveData(); // SAVE SETIAP ADA PERUBAHAN
-        }
+            return currentStock - amount;
+        });
     }
 
     // --- Repository Methods ---
