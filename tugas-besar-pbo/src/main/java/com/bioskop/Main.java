@@ -88,7 +88,7 @@ public class Main extends JFrame {
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
                 GradientPaint glow = new GradientPaint(
                     x, y, new Color(color.getRed(), color.getGreen(), color.getBlue(), 150),
-                    x + size, y + size, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
+                    x + (float)size, y + (float)size, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
                 );
                 g2d.setPaint(glow);
                 g2d.fillOval(x - size / 2, y - size / 2, size, size);
@@ -694,8 +694,8 @@ public class Main extends JFrame {
 
         StringBuilder struk = new StringBuilder();
         struk.append(String.format("╔════════════════════════════════════════════════╗%n"));
-        struk.append(String.format("║  [FILM] CINEMA BOOKING SYSTEM - KELAS 2C      ║%n"));
-        struk.append(String.format("║   Tugas Besar Pemrograman Berorientasi Objek  ║%n"));
+        struk.append(String.format("║    [FILM] CINEMA BOOKING SYSTEM - KELAS 2C     ║%n"));
+        struk.append(String.format("║   Tugas Besar Pemrograman Berorientasi Objek   ║%n"));
         struk.append(String.format("╚════════════════════════════════════════════════╝%n"));
         struk.append(String.format("%n"));
         struk.append(String.format(" Film        : %-35s%n", truncate(selectedFilm.getTitle(), 35)));
@@ -714,7 +714,7 @@ public class Main extends JFrame {
         struk.append(String.format(" Metode       : %-35s%n", truncate(tipeBayar, 35)));
         struk.append(String.format(" TOTAL BAYAR  : %s%n", formatRupiah(hargaAkhir)));
         struk.append(String.format("═══════════════════════════════════════════════════%n"));
-        struk.append(String.format("%n      [OK] Terima kasih! Happy Watching! [OK]%n"));
+        struk.append(String.format("%n         Terima kasih! Happy Watching!%n"));
 
         areaStruk.setText(struk.toString());
         btnCetak.setEnabled(true);

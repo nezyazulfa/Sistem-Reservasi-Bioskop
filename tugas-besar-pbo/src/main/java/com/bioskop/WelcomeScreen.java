@@ -1,7 +1,6 @@
 package com.bioskop;
 
 import javax.swing.*;
-import javax.swing.WindowConstants;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -9,8 +8,8 @@ public class WelcomeScreen extends JFrame {
     
     // Color Palette - MATCHING dengan Main.java
     private static final Color DARK_BG = new Color(15, 23, 42);
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185); // Sama dengan Main
-    private static final Color ACCENT_COLOR = new Color(46, 204, 113);  // Sama dengan Main
+    private static final Color PRIMARY_COLOR = new Color(41, 128, 185); 
+    private static final Color ACCENT_COLOR = new Color(46, 204, 113);  
     private static final Color ACCENT_PINK = new Color(236, 72, 153);
     private static final Color TEXT_WHITE = new Color(248, 250, 252);
     private static final Color TEXT_GRAY = new Color(148, 163, 184);
@@ -18,11 +17,12 @@ public class WelcomeScreen extends JFrame {
     private JPanel contentPanel;
     private Timer fadeTimer;
     private float opacity = 0.0f;
+    private double iconAngle = 0;
+
     public WelcomeScreen() {
         setTitle("Cinema Booking System");
         setSize(1000, 700);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLocationRelativeTo(null);
         setUndecorated(true);
         
@@ -59,7 +59,7 @@ public class WelcomeScreen extends JFrame {
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
                 GradientPaint glow = new GradientPaint(
                     x, y, new Color(color.getRed(), color.getGreen(), color.getBlue(), 150),
-                    x + size, y + size, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
+                    x + (float)size, y + (float)size, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
                 );
                 g2d.setPaint(glow);
                 g2d.fillOval(x - size / 2, y - size / 2, size, size);
@@ -113,22 +113,15 @@ public class WelcomeScreen extends JFrame {
         JLabel titleLabel = new JLabel("CINEMA BOOKING", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 42));
         titleLabel.setForeground(TEXT_WHITE);
-        titleLabel.setBounds(50, 170, 600, 50);
+        titleLabel.setBounds(50, 200, 600, 50);
         cardPanel.add(titleLabel);
         
         // Subtitle with gradient effect
         JLabel subtitleLabel = new JLabel("SYSTEM", SwingConstants.CENTER);
         subtitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 42));
         subtitleLabel.setForeground(PRIMARY_COLOR);
-        subtitleLabel.setBounds(50, 215, 600, 50);
+        subtitleLabel.setBounds(50, 245, 600, 50);
         cardPanel.add(subtitleLabel);
-        
-        // Description
-        JLabel descLabel = new JLabel("<html><center>Kelompok Kupat Tahu Padalarang <br/> Andhini Widya Putri Wastika (241511068) || Nezya Zulfa Fauziah (241511085) || Siti Soviyyah (241511090)</center></html>", SwingConstants.CENTER);
-        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        descLabel.setForeground(TEXT_GRAY);
-        descLabel.setBounds(50, 280, 600, 60);
-        cardPanel.add(descLabel);
         
         // Start Button dengan hover effect
         JButton startBtn = new JButton("MULAI PEMESANAN") {
@@ -205,18 +198,6 @@ public class WelcomeScreen extends JFrame {
         
         cardPanel.add(startBtn);
         
-        // Features badges
-        String[] features = {"Singleton Pattern", "Decorator Pattern", "Strategy Pattern"};
-        int badgeY = 445;
-        int badgeX = 120;
-        
-        for (String feature : features) {
-            JLabel badge = createBadge(feature);
-            badge.setBounds(badgeX, badgeY, 150, 30);
-            cardPanel.add(badge);
-            badgeX += 160;
-        }
-        
         contentPanel.add(cardPanel);
         
         // Footer text
@@ -226,42 +207,12 @@ public class WelcomeScreen extends JFrame {
         footerLabel.setBounds(0, 640, 1000, 30);
         contentPanel.add(footerLabel);
         
-        // Animate icon rotation
-        Timer iconTimer = new Timer(30, new ActionListener() {
-            double angle = 0;
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                angle += 0.02;
-                double scale = 1 + Math.sin(angle) * 0.05;
-                iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, (int)(80 * scale)));
-            }
+        Timer iconTimer = new Timer(30, e -> {
+            iconAngle += 0.02; 
+            double scale = 1 + Math.sin(iconAngle) * 0.05;
+            iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, (int)(80 * scale)));
         });
         iconTimer.start();
-    }
-    
-    private JLabel createBadge(String text) {
-        JLabel badge = new JLabel(text, SwingConstants.CENTER) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                g2d.setColor(new Color(41, 128, 185, 50));
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                
-                g2d.setColor(new Color(41, 128, 185, 150));
-                g2d.setStroke(new BasicStroke(1));
-                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                
-                super.paintComponent(g);
-            }
-        };
-        
-        badge.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        badge.setForeground(new Color(174, 214, 241));
-        badge.setOpaque(false);
-        return badge;
     }
     
     private JButton createIconButton(String text, int x, int y, int width, int height) {
@@ -299,19 +250,16 @@ public class WelcomeScreen extends JFrame {
     }
     
     private void startFadeInAnimation() {
-        fadeTimer = new Timer(20, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                opacity += 0.05f;
-                if (opacity >= 1.0f) {
-                    opacity = 1.0f;
-                    fadeTimer.stop();
-                }
-                try {
-                    setOpacity(opacity);
-                } catch (Exception ex) {
-                    // Ignore
-                }
+        fadeTimer = new Timer(20, e -> {
+            opacity += 0.05f;
+            if (opacity >= 1.0f) {
+                opacity = 1.0f;
+                fadeTimer.stop();
+            }
+            try {
+                setOpacity(opacity);
+            } catch (Exception ex) {
+                // Ignore
             }
         });
         fadeTimer.start();
@@ -319,35 +267,29 @@ public class WelcomeScreen extends JFrame {
     
     private void openMainApplication() {
         // Fade out animation
-        Timer fadeOutTimer = new Timer(20, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                opacity -= 0.08f;
-                if (opacity <= 0.0f) {
-                    opacity = 0.0f;
-                    ((Timer) e.getSource()).stop();
-                    
-                    // PENTING: Dispose window lama dulu, baru buka yang baru
-                    dispose();
-                    
-                    // Open main application dengan invoke later untuk smooth transition
-                    SwingUtilities.invokeLater(() -> {
-                        Main mainFrame = new Main();
-                        mainFrame.setVisible(true);
-                    });
-                }
-                try {
-                    setOpacity(opacity);
-                } catch (Exception ex) {
-                    // Ignore
-                }
+        Timer fadeOutTimer = new Timer(20, e -> {
+            opacity -= 0.08f;
+            if (opacity <= 0.0f) {
+                opacity = 0.0f;
+                ((Timer) e.getSource()).stop();
+                
+                dispose();
+                
+                SwingUtilities.invokeLater(() -> {
+                    Main mainFrame = new Main();
+                    mainFrame.setVisible(true);
+                });
+            }
+            try {
+                setOpacity(opacity);
+            } catch (Exception ex) {
+                // Ignore
             }
         });
         fadeOutTimer.start();
     }
     
     public static void main(String[] args) {
-        // Set system look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
