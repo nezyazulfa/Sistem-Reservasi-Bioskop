@@ -8,8 +8,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.WindowConstants;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.FileOutputStream;
 import java.text.NumberFormat;
 import java.util.List;
@@ -23,14 +23,15 @@ import com.itextpdf.text.BaseColor;
 
 public class Main extends JFrame {
 
-    // Color Palette
+    // Modern Color Palette - Dark Theme
+    private static final Color DARK_BG = new Color(15, 23, 42);
+    private static final Color CARD_BG = new Color(30, 41, 59, 230);
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
-    private static final Color SECONDARY_COLOR = new Color(52, 73, 94);
-    private static final Color ACCENT_COLOR = new Color(46, 204, 113);
-    private static final Color BACKGROUND_COLOR = new Color(236, 240, 241);
-    private static final Color CARD_COLOR = Color.WHITE;
-    private static final Color TEXT_PRIMARY = new Color(44, 62, 80);
-    private static final Color TEXT_SECONDARY = new Color(127, 140, 141);
+    private static final Color ACCENT_GREEN = new Color(46, 204, 113);
+    private static final Color ACCENT_PINK = new Color(236, 72, 153);
+    private static final Color TEXT_WHITE = new Color(248, 250, 252);
+    private static final Color TEXT_GRAY = new Color(148, 163, 184);
+    private static final Color BORDER_COLOR = new Color(71, 85, 105);
 
     // GUI Components
     private DefaultTableModel tableModel;
@@ -51,9 +52,8 @@ public class Main extends JFrame {
     public Main() {
         database = CinemaData.getInstance();
         setTitle("Cinema Booking System - OOP Kelas 2C");
-        setSize(1280, 850);
+        setSize(1400, 900);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLocationRelativeTo(null);
         
         try {
@@ -62,19 +62,51 @@ public class Main extends JFrame {
             e.printStackTrace();
         }
 
-        JPanel mainPanel = new JPanel(new BorderLayout(0, 0));
-        mainPanel.setBackground(BACKGROUND_COLOR);
+        // Main Panel dengan Gradient Background
+        JPanel mainPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                
+                // Gradient background
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, DARK_BG,
+                    getWidth(), getHeight(), new Color(30, 41, 59)
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                
+                // Decorative glow circles
+                drawGlowCircle(g2d, 200, 150, 300, PRIMARY_COLOR, 0.08f);
+                drawGlowCircle(g2d, getWidth() - 200, 200, 350, ACCENT_PINK, 0.06f);
+                drawGlowCircle(g2d, getWidth() / 2, getHeight() - 150, 400, ACCENT_GREEN, 0.05f);
+            }
+            
+            private void drawGlowCircle(Graphics2D g2d, int x, int y, int size, Color color, float alpha) {
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+                GradientPaint glow = new GradientPaint(
+                    x, y, new Color(color.getRed(), color.getGreen(), color.getBlue(), 150),
+                    x + size, y + size, new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
+                );
+                g2d.setPaint(glow);
+                g2d.fillOval(x - size / 2, y - size / 2, size, size);
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            }
+        };
+        
+        mainPanel.setLayout(new BorderLayout(0, 0));
 
-        // HEADER
+        // HEADER dengan Gradient
         mainPanel.add(createHeaderPanel(), BorderLayout.NORTH);
 
-        // CENTER
+        // CENTER CONTENT
         JPanel centerWrapper = new JPanel(new BorderLayout());
-        centerWrapper.setBackground(BACKGROUND_COLOR);
-        centerWrapper.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        centerWrapper.setOpaque(false);
+        centerWrapper.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // Layout Utama: Kiri (Tabel) dan Kanan (Form)
-        JPanel contentPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2, 25, 0));
         contentPanel.setOpaque(false);
         contentPanel.add(createFilmCatalogPanel());
         contentPanel.add(createBookingPanel());
@@ -82,10 +114,10 @@ public class Main extends JFrame {
         centerWrapper.add(contentPanel, BorderLayout.CENTER);
         mainPanel.add(centerWrapper, BorderLayout.CENTER);
 
-        // SOUTH - Receipt & Print
+        // SOUTH - Receipt
         JPanel southWrapper = new JPanel(new BorderLayout());
-        southWrapper.setBackground(BACKGROUND_COLOR);
-        southWrapper.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 20));
+        southWrapper.setOpaque(false);
+        southWrapper.setBorder(BorderFactory.createEmptyBorder(0, 30, 25, 30));
         southWrapper.add(createReceiptPanel(), BorderLayout.CENTER);
         
         mainPanel.add(southWrapper, BorderLayout.SOUTH);
@@ -94,42 +126,49 @@ public class Main extends JFrame {
     }
 
     private JPanel createHeaderPanel() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(PRIMARY_COLOR);
-        header.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
+        JPanel header = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                
+                // Gradient header
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, PRIMARY_COLOR,
+                    getWidth(), 0, new Color(52, 152, 219)
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        
+        header.setLayout(new BorderLayout());
+        header.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        header.setPreferredSize(new Dimension(0, 90));
         
         JLabel title = new JLabel("CINEMA BOOKING SYSTEM");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        title.setForeground(TEXT_WHITE);
         
-        // --- UPDATED: MENGHAPUS BAGIAN INFO GUDANG DI KANAN ATAS ---
-        header.add(title, BorderLayout.WEST);
+        JLabel subtitle = new JLabel("Politeknik Negeri Bandung - Kelas 2C");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitle.setForeground(new Color(220, 230, 240));
+        
+        JPanel titlePanel = new JPanel();
+        titlePanel.setOpaque(false);
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        titlePanel.add(title);
+        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(subtitle);
+        
+        header.add(titlePanel, BorderLayout.WEST);
         
         return header;
     }
 
     private JPanel createFilmCatalogPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(CARD_COLOR);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-            BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        ));
-
-        JPanel headerPanel = new JPanel(new BorderLayout(0, 5));
-        headerPanel.setOpaque(false);
-        
-        JLabel lblHeader = new JLabel("Katalog Film");
-        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblHeader.setForeground(TEXT_PRIMARY);
-        
-        JLabel lblInfo = new JLabel("Pilih film dari daftar di bawah");
-        lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblInfo.setForeground(TEXT_SECONDARY);
-        
-        headerPanel.add(lblHeader, BorderLayout.NORTH);
-        headerPanel.add(lblInfo, BorderLayout.SOUTH);
-        panel.add(headerPanel, BorderLayout.NORTH);
+        JPanel panel = createGlassPanel("KATALOG FILM", "Pilih film dari daftar di bawah");
 
         String[] columnNames = {"Judul Film", "Genre", "Harga", "Stok"};
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -150,43 +189,49 @@ public class Main extends JFrame {
         });
 
         JScrollPane scrollPane = new JScrollPane(tableFilm);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199), 1));
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        
         panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
     }
 
     private void styleTable(JTable table) {
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        table.setRowHeight(35);
-        table.setSelectionBackground(new Color(52, 152, 219, 80));
-        table.setSelectionForeground(TEXT_PRIMARY);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(40);
+        table.setBackground(new Color(30, 41, 59));
+        table.setForeground(TEXT_WHITE);
+        table.setSelectionBackground(new Color(41, 128, 185, 100));
+        table.setSelectionForeground(TEXT_WHITE);
         table.setShowGrid(true);
-        table.setGridColor(new Color(220, 220, 220));
-        table.setIntercellSpacing(new Dimension(1, 1));
+        table.setGridColor(new Color(71, 85, 105));
         
         styleTableHeader(table);
         applyHeaderRenderer(table);
         applyCellRenderer(table);
-        setColumnWidths(table);
     }
-
+    
     private void styleTableHeader(JTable table) {
         JTableHeader header = table.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setPreferredSize(new Dimension(header.getWidth(), 45));
         header.setReorderingAllowed(false);
+        header.setBackground(new Color(15, 23, 42));
+        header.setForeground(TEXT_WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
     }
-
+    
     private void applyHeaderRenderer(JTable table) {
         DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setBackground(SECONDARY_COLOR);
-                setForeground(Color.WHITE);
-                setFont(new Font("Segoe UI", Font.BOLD, 12));
-                setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                setBackground(new Color(15, 23, 42));
+                setForeground(TEXT_WHITE);
+                setFont(new Font("Segoe UI", Font.BOLD, 13));
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
                 return this;
             }
         };
@@ -195,22 +240,23 @@ public class Main extends JFrame {
             table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
         }
     }
-
+    
     private void applyCellRenderer(JTable table) {
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (!isSelected) {
-                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 249, 250));
-                    setForeground(TEXT_PRIMARY);
-                } else {
-                    setForeground(TEXT_PRIMARY);
-                }
-                setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
                 
-                highlightLowStock(column, value);
+                if (!isSelected) {
+                    setBackground(row % 2 == 0 ? new Color(30, 41, 59) : new Color(40, 51, 69));
+                }
+                setForeground(TEXT_WHITE);
+                setHorizontalAlignment(column == 3 ? SwingConstants.CENTER : SwingConstants.LEFT);
+                setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+                
+                applyStockHighlight(value, column);
+                
                 return this;
             }
         };
@@ -219,118 +265,142 @@ public class Main extends JFrame {
             table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
         }
     }
-
-    private void highlightLowStock(int column, Object value) {
+    
+    private void applyStockHighlight(Object value, int column) {
         if (column == 3) {
             try {
                 int stok = Integer.parseInt(value.toString());
-                if (stok <= 0) setForeground(Color.RED);
+                if (stok <= 0) {
+                    setForeground(new Color(239, 68, 68));
+                    setFont(getFont().deriveFont(Font.BOLD));
+                }
             } catch (Exception e) {
-                // Silently ignore if value cannot be parsed as integer
+                // Ignore
             }
         }
     }
 
-    private void setColumnWidths(JTable table) {
-        table.getColumnModel().getColumn(0).setPreferredWidth(200);
-        table.getColumnModel().getColumn(1).setPreferredWidth(100);
-        table.getColumnModel().getColumn(2).setPreferredWidth(100);
-        table.getColumnModel().getColumn(3).setPreferredWidth(60);
-    }
-
     private JPanel createBookingPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(CARD_COLOR);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-            BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        ));
+        JPanel panel = createGlassPanel("KUSTOMISASI TIKET", "Sesuaikan pesanan Anda");
 
-        // --- Header ---
-        JLabel lblHeader = new JLabel("Kustomisasi Tiket");
-        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblHeader.setForeground(TEXT_PRIMARY);
-        panel.add(lblHeader, BorderLayout.NORTH);
-
-        // --- Form (Center) ---
-        // ScrollPane ditambahkan agar responsif
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBackground(CARD_COLOR);
+        contentPanel.setOpaque(false);
 
-        // Film Info Box
-        JPanel filmInfoPanel = new JPanel();
+        // Film Info dengan gradient
+        JPanel filmInfoPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, new Color(41, 128, 185, 100),
+                    getWidth(), getHeight(), new Color(46, 204, 113, 80)
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                
+                g2d.setColor(new Color(41, 128, 185, 150));
+                g2d.setStroke(new BasicStroke(2));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+            }
+        };
+        
         filmInfoPanel.setLayout(new BoxLayout(filmInfoPanel, BoxLayout.Y_AXIS));
-        filmInfoPanel.setBackground(new Color(240, 248, 255));
-        filmInfoPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(PRIMARY_COLOR, 1),
-            BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
+        filmInfoPanel.setOpaque(false);
+        filmInfoPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         filmInfoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        filmInfoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        filmInfoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         
         labelFilmTerpilih = new JLabel("Belum ada film dipilih");
-        labelFilmTerpilih.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        labelFilmTerpilih.setForeground(TEXT_PRIMARY);
+        labelFilmTerpilih.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        labelFilmTerpilih.setForeground(TEXT_WHITE);
         
         labelHargaPreview = new JLabel(" ");
-        labelHargaPreview.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        labelHargaPreview.setForeground(TEXT_SECONDARY);
+        labelHargaPreview.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        labelHargaPreview.setForeground(TEXT_GRAY);
         
         filmInfoPanel.add(labelFilmTerpilih);
-        filmInfoPanel.add(Box.createVerticalStrut(3));
+        filmInfoPanel.add(Box.createVerticalStrut(5));
         filmInfoPanel.add(labelHargaPreview);
         
         contentPanel.add(filmInfoPanel);
-        contentPanel.add(Box.createVerticalStrut(15)); 
+        contentPanel.add(Box.createVerticalStrut(20));
 
-        // Inputs
+        // Spinners dengan style modern
         contentPanel.add(createStyledLabel("Tambahan:"));
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(Box.createVerticalStrut(8));
 
         spinnerTiket = createSpinner();
-        contentPanel.add(createSpinnerPanel("Jumlah Tiket:", spinnerTiket));
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(createSpinnerPanel("Jumlah Tiket", spinnerTiket));
+        contentPanel.add(Box.createVerticalStrut(8));
         
         spinnerPopcorn = createSpinner();
-        contentPanel.add(createSpinnerPanel("Popcorn (+25rb):", spinnerPopcorn));
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(createSpinnerPanel("Popcorn (+25rb)", spinnerPopcorn));
+        contentPanel.add(Box.createVerticalStrut(8));
         
         spinnerSoftdrink = createSpinner();
-        contentPanel.add(createSpinnerPanel("Softdrink (+15rb):", spinnerSoftdrink));
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(createSpinnerPanel("Softdrink (+15rb)", spinnerSoftdrink));
+        contentPanel.add(Box.createVerticalStrut(8));
         
         spinnerVip = createSpinner();
-        contentPanel.add(createSpinnerPanel("Upgrade VIP (+50rb):", spinnerVip));
-        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(createSpinnerPanel("Upgrade VIP (+50rb)", spinnerVip));
+        contentPanel.add(Box.createVerticalStrut(20));
 
         contentPanel.add(createStyledLabel("Kalkulasi Harga:"));
-        contentPanel.add(Box.createVerticalStrut(5));
+        contentPanel.add(Box.createVerticalStrut(8));
 
         String[] options = {"Harga Normal", "Weekend (+Rp 10.000)", "Member (Diskon 10%)"};
         comboStrategy = new JComboBox<>(options);
-        comboStrategy.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        comboStrategy.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        comboStrategy.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        comboStrategy.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         comboStrategy.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // --- PERBAIKAN DROPDOWN ---
+        // Menggunakan Warna Putih untuk Background dan Hitam untuk Text agar kontras
+        comboStrategy.setBackground(Color.WHITE); 
+        comboStrategy.setForeground(Color.BLACK);
+        
+        // Custom renderer untuk dropdown
+        comboStrategy.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, 
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                
+                if (isSelected) {
+                    setBackground(PRIMARY_COLOR);
+                    setForeground(Color.WHITE);
+                } else {
+                    setBackground(Color.WHITE);
+                    setForeground(Color.BLACK);
+                }
+                
+                setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+                return this;
+            }
+        });
+        
         contentPanel.add(comboStrategy);
         
-        contentPanel.add(Box.createVerticalGlue()); // Push ke atas
+        contentPanel.add(Box.createVerticalGlue());
 
         JScrollPane scrollForm = new JScrollPane(contentPanel);
         scrollForm.setBorder(null);
+        scrollForm.setOpaque(false);
+        scrollForm.getViewport().setOpaque(false);
         scrollForm.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
         panel.add(scrollForm, BorderLayout.CENTER);
 
-        // --- Tombol Hitung (South) ---
+        // Button dengan gradient
         JPanel buttonPanel = new JPanel(new GridLayout(1, 1));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
         
-        JButton btnHitung = new JButton("HITUNG & PESAN TIKET");
-        styleButton(btnHitung, ACCENT_COLOR, new Color(39, 174, 96), Color.WHITE);
+        JButton btnHitung = createGradientButton("HITUNG & PESAN TIKET");
         btnHitung.addActionListener(e -> prosesPemesanan());
-        btnHitung.setPreferredSize(new Dimension(100, 45));
         
         buttonPanel.add(btnHitung);
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -338,10 +408,86 @@ public class Main extends JFrame {
         return panel;
     }
 
+    private JPanel createReceiptPanel() {
+        JPanel panel = createGlassPanel("[STRUK] STRUK PEMESANAN", "Detail transaksi Anda");
+        panel.setPreferredSize(new Dimension(0, 220));
+
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        
+        btnCetak = createGradientButton("Simpan Struk PDF");
+        btnCetak.setPreferredSize(new Dimension(200, 40));
+        btnCetak.setEnabled(false);
+        btnCetak.addActionListener(e -> simpanPDF());
+
+        headerPanel.add(btnCetak, BorderLayout.EAST);
+        panel.add(headerPanel, BorderLayout.NORTH);
+
+        areaStruk = new JTextArea();
+        areaStruk.setEditable(false);
+        areaStruk.setFont(new Font("Courier New", Font.PLAIN, 12));
+        areaStruk.setBackground(new Color(15, 23, 42));
+        areaStruk.setForeground(TEXT_WHITE);
+        areaStruk.setCaretColor(TEXT_WHITE);
+        areaStruk.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        areaStruk.setText("Silakan pilih film dari katalog dan lakukan pemesanan...");
+        
+        JScrollPane scroll = new JScrollPane(areaStruk);
+        scroll.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+
+        panel.add(scroll, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createGlassPanel(String title, String subtitle) {
+        JPanel panel = new JPanel(new BorderLayout(0, 15)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2d.setColor(CARD_BG);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                
+                g2d.setColor(new Color(71, 85, 105, 150));
+                g2d.setStroke(new BasicStroke(1.5f));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+            }
+        };
+        
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setOpaque(false);
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTitle.setForeground(TEXT_WHITE);
+        lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel lblSubtitle = new JLabel(subtitle);
+        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSubtitle.setForeground(TEXT_GRAY);
+        lblSubtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        headerPanel.add(lblTitle);
+        headerPanel.add(Box.createVerticalStrut(3));
+        headerPanel.add(lblSubtitle);
+        
+        panel.add(headerPanel, BorderLayout.NORTH);
+        
+        return panel;
+    }
+
     private JLabel createStyledLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lbl.setForeground(TEXT_PRIMARY);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lbl.setForeground(TEXT_WHITE);
         lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         return lbl;
     }
@@ -349,107 +495,123 @@ public class Main extends JFrame {
     private JSpinner createSpinner() {
         SpinnerNumberModel model = new SpinnerNumberModel(0, 0, 99, 1);
         JSpinner spinner = new JSpinner(model);
-        spinner.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setHorizontalAlignment(SwingConstants.CENTER);
+        spinner.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        spinner.setBackground(new Color(15, 23, 42));
+        spinner.setForeground(TEXT_WHITE);
+        
+        JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
+        editor.getTextField().setHorizontalAlignment(SwingConstants.CENTER);
+        editor.getTextField().setBackground(new Color(15, 23, 42));
+        editor.getTextField().setForeground(TEXT_WHITE);
+        editor.getTextField().setCaretColor(TEXT_WHITE);
+        
         return spinner;
     }
 
     private JPanel createSpinnerPanel(String labelText, JSpinner spinner) {
-        JPanel panel = new JPanel(new BorderLayout(10, 0));
-        panel.setOpaque(true);
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        JPanel panel = new JPanel(new BorderLayout(15, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2d.setColor(new Color(15, 23, 42, 200));
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                
+                g2d.setColor(BORDER_COLOR);
+                g2d.setStroke(new BasicStroke(1));
+                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
+            }
+        };
+        
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        label.setForeground(TEXT_PRIMARY);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        label.setForeground(TEXT_WHITE);
         
-        spinner.setPreferredSize(new Dimension(60, 25));
+        spinner.setPreferredSize(new Dimension(70, 30));
         
         panel.add(label, BorderLayout.WEST);
         panel.add(spinner, BorderLayout.EAST);
         return panel;
     }
 
-    private void styleButton(JButton btn, Color normalColor, Color hoverColor, Color textColor) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setBackground(normalColor);
-        btn.setForeground(textColor);
+    private JButton createGradientButton(String text) {
+        JButton btn = new JButton(text) {
+            private boolean hover = false;
+            
+            @Override
+            public void addNotify() {
+                super.addNotify();
+                addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        hover = true;
+                        repaint();
+                    }
+                    
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        hover = false;
+                        repaint();
+                    }
+                });
+            }
+            
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (isEnabled()) {
+                    if (hover) {
+                        GradientPaint gradient = new GradientPaint(
+                            0, 0, PRIMARY_COLOR,
+                            getWidth(), 0, ACCENT_GREEN
+                        );
+                        g2d.setPaint(gradient);
+                    } else {
+                        g2d.setColor(ACCENT_GREEN);
+                    }
+                } else {
+                    g2d.setColor(new Color(71, 85, 105));
+                }
+                
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(getFont());
+                FontMetrics fm = g2d.getFontMetrics();
+                int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+                int textY = (getHeight() + fm.getAscent()) / 2 - 2;
+                g2d.drawString(getText(), textX, textY);
+            }
+        };
+        
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setForeground(Color.WHITE);
+        btn.setPreferredSize(new Dimension(100, 50));
         btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(hoverColor);
-                btn.setForeground(textColor);
-            }
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(normalColor);
-                btn.setForeground(textColor);
-            }
-        });
-    }
-
-    private JPanel createReceiptPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(CARD_COLOR);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-            BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        ));
-        panel.setPreferredSize(new Dimension(0, 200));
-
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(CARD_COLOR);
-        
-        JLabel lblHeader = new JLabel("Struk Otomatis");
-        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        lblHeader.setForeground(TEXT_PRIMARY);
-        
-        btnCetak = new JButton("Simpan Struk PDF");
-        styleButton(btnCetak, new Color(52, 152, 219), new Color(41, 128, 185), Color.WHITE);
-        
-        btnCetak.setPreferredSize(new Dimension(160, 30));
-        btnCetak.setEnabled(false); 
-        btnCetak.addActionListener(e -> simpanPDF());
-
-        headerPanel.add(lblHeader, BorderLayout.WEST);
-        headerPanel.add(btnCetak, BorderLayout.EAST);
-
-        areaStruk = new JTextArea();
-        areaStruk.setEditable(false);
-        areaStruk.setFont(new Font("Courier New", Font.PLAIN, 12));
-        areaStruk.setBackground(new Color(250, 250, 250));
-        areaStruk.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        areaStruk.setText("Silakan pilih film dari katalog dan lakukan pemesanan...");
-        
-        JScrollPane scroll = new JScrollPane(areaStruk);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(189, 195, 199), 1));
-
-        panel.add(headerPanel, BorderLayout.NORTH);
-        panel.add(scroll, BorderLayout.CENTER);
-
-        return panel;
+        return btn;
     }
 
     private void loadDataFilm() {
-        tableModel.setRowCount(0); // Clear data lama
+        tableModel.setRowCount(0);
         List<Film> films = database.getAll();
         for (Film f : films) {
-            // LOAD DENGAN STOK
             tableModel.addRow(new Object[]{
                 f.getTitle(), 
                 f.getGenre(), 
                 formatRupiah(f.getPrice()),
-                f.getStock() // Kolom Stok
+                f.getStock()
             });
         }
     }
@@ -462,7 +624,7 @@ public class Main extends JFrame {
             spinnerPopcorn.setValue(0);
             spinnerSoftdrink.setValue(0);
             spinnerVip.setValue(0);
-            btnCetak.setEnabled(false); 
+            btnCetak.setEnabled(false);
         }
     }
 
@@ -477,10 +639,9 @@ public class Main extends JFrame {
         }
     }
 
-    // --- LOGIKA UTAMA DENGAN VALIDASI STOK DAN SIMPAN DATA ---
     private void prosesPemesanan() {
         if (selectedFilm == null) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih film dari katalog!", "Perhatian", JOptionPane.WARNING_MESSAGE);
+            showStyledDialog("Silakan pilih film dari katalog!", "Perhatian", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -489,33 +650,29 @@ public class Main extends JFrame {
         int jumlahSoftdrink = (Integer) spinnerSoftdrink.getValue();
         int jumlahVip = (Integer) spinnerVip.getValue();
 
-        // 1. Validasi Input
         if (jumlahTiket == 0) {
-            JOptionPane.showMessageDialog(this, "Jumlah tiket minimal 1!", "Perhatian", JOptionPane.WARNING_MESSAGE);
+            showStyledDialog("Jumlah tiket minimal 1!", "Perhatian", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (jumlahVip > jumlahTiket) {
-             JOptionPane.showMessageDialog(this, "Jumlah VIP Seat tidak boleh melebihi jumlah tiket!", "Validasi Error", JOptionPane.WARNING_MESSAGE);
-             return;
-        }
-
-        // 2. Validasi STOK KURSI
-        if (selectedFilm.getStock() < jumlahTiket) {
-            JOptionPane.showMessageDialog(this, "Stok kursi habis! Sisa: " + selectedFilm.getStock(), "Stok Habis", JOptionPane.ERROR_MESSAGE);
+            showStyledDialog("Jumlah VIP Seat tidak boleh melebihi jumlah tiket!", "Validasi Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // 3. Validasi STOK MAKANAN
+        if (selectedFilm.getStock() < jumlahTiket) {
+            showStyledDialog("Stok kursi habis! Sisa: " + selectedFilm.getStock(), "Stok Habis", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (database.getItemStock("Popcorn") < jumlahPopcorn) {
-            JOptionPane.showMessageDialog(this, "Stok Popcorn habis! Sisa: " + database.getItemStock("Popcorn"), "Stok Habis", JOptionPane.ERROR_MESSAGE);
+            showStyledDialog("Stok Popcorn habis! Sisa: " + database.getItemStock("Popcorn"), "Stok Habis", JOptionPane.ERROR_MESSAGE);
             return;
         }
         if (database.getItemStock("Softdrink") < jumlahSoftdrink) {
-            JOptionPane.showMessageDialog(this, "Stok Softdrink habis! Sisa: " + database.getItemStock("Softdrink"), "Stok Habis", JOptionPane.ERROR_MESSAGE);
+            showStyledDialog("Stok Softdrink habis! Sisa: " + database.getItemStock("Softdrink"), "Stok Habis", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // --- Perhitungan Harga ---
         double hargaDasar = selectedFilm.getPrice() * jumlahTiket;
         double hargaPopcorn = 25000.0 * jumlahPopcorn;
         double hargaSoftdrink = 15000.0 * jumlahSoftdrink;
@@ -527,44 +684,42 @@ public class Main extends JFrame {
         String tipeBayar = (String) comboStrategy.getSelectedItem();
         double hargaAkhir = strategy.hitungHargaAkhir(hargaTotal);
 
-        // --- UPDATE DATA (KURANGI STOK & SAVE) ---
         selectedFilm.reduceStock(jumlahTiket);
         database.reduceItemStock("Popcorn", jumlahPopcorn);
         database.reduceItemStock("Softdrink", jumlahSoftdrink);
-        database.updateFilmStock(); // FORCE SAVE DATA FILM
+        database.updateFilmStock();
         
-        // Refresh GUI
         loadDataFilm();
         updateFilmSelection();
 
-        // --- Cetak Struk ---
         StringBuilder struk = new StringBuilder();
-        struk.append(String.format("==================================================%n"));
-        struk.append(String.format("          CINEMA BOOKING SYSTEM - KELAS 2C        %n"));
-        struk.append(String.format("       Tugas Besar Pemrograman Berorientasi Objek %n"));
-        struk.append(String.format("==================================================%n"));
-        struk.append(String.format(" Film        : %-30s%n", truncate(selectedFilm.getTitle(), 30)));
-        struk.append(String.format(" Genre       : %-30s%n", truncate(selectedFilm.getGenre(), 30)));
-        struk.append(String.format("==================================================%n"));
+        struk.append(String.format("╔════════════════════════════════════════════════╗%n"));
+        struk.append(String.format("║  [FILM] CINEMA BOOKING SYSTEM - KELAS 2C      ║%n"));
+        struk.append(String.format("║   Tugas Besar Pemrograman Berorientasi Objek  ║%n"));
+        struk.append(String.format("╚════════════════════════════════════════════════╝%n"));
+        struk.append(String.format("%n"));
+        struk.append(String.format(" Film        : %-35s%n", truncate(selectedFilm.getTitle(), 35)));
+        struk.append(String.format(" Genre       : %-35s%n", truncate(selectedFilm.getGenre(), 35)));
+        struk.append(String.format("───────────────────────────────────────────────────%n"));
         struk.append(String.format(" DETAIL PESANAN:%n"));
-        struk.append(String.format(" Tiket Reguler        : %2d x %-15s%n", jumlahTiket, formatRupiah(selectedFilm.getPrice())));
+        struk.append(String.format(" [TIKET] Tiket Reguler : %2d x %s%n", jumlahTiket, formatRupiah(selectedFilm.getPrice())));
         
-        if (jumlahPopcorn > 0) struk.append(String.format(" Popcorn Large        : %2d x %-15s%n", jumlahPopcorn, "Rp25.000,00"));
-        if (jumlahSoftdrink > 0) struk.append(String.format(" Softdrink            : %2d x %-15s%n", jumlahSoftdrink, "Rp15.000,00"));
-        if (jumlahVip > 0) struk.append(String.format(" Upgrade VIP Seat     : %2d x %-15s%n", jumlahVip, "Rp50.000,00"));
+        if (jumlahPopcorn > 0) struk.append(String.format(" [FOOD] Popcorn Large  : %2d x Rp25.000,00%n", jumlahPopcorn));
+        if (jumlahSoftdrink > 0) struk.append(String.format(" [DRINK] Softdrink     : %2d x Rp15.000,00%n", jumlahSoftdrink));
+        if (jumlahVip > 0) struk.append(String.format(" [VIP] Upgrade VIP Seat: %2d x Rp50.000,00%n", jumlahVip));
         
-        struk.append(String.format("==================================================%n"));
-        struk.append(String.format(" Subtotal    : %-30s%n", formatRupiah(hargaTotal)));
-        struk.append(String.format("---------------------------------------------------%n"));
-        struk.append(String.format(" Metode      : %-30s%n", truncate(tipeBayar, 30)));
-        struk.append(String.format(" TOTAL BAYAR : %-30s%n", formatRupiah(hargaAkhir)));
-        struk.append(String.format("==================================================%n"));
-        struk.append(String.format(" Terima kasih! Happy Watching!%n"));
+        struk.append(String.format("═══════════════════════════════════════════════════%n"));
+        struk.append(String.format(" Subtotal     : %s%n", formatRupiah(hargaTotal)));
+        struk.append(String.format("───────────────────────────────────────────────────%n"));
+        struk.append(String.format(" Metode       : %-35s%n", truncate(tipeBayar, 35)));
+        struk.append(String.format(" TOTAL BAYAR  : %s%n", formatRupiah(hargaAkhir)));
+        struk.append(String.format("═══════════════════════════════════════════════════%n"));
+        struk.append(String.format("%n      [OK] Terima kasih! Happy Watching! [OK]%n"));
 
         areaStruk.setText(struk.toString());
-        btnCetak.setEnabled(true); 
+        btnCetak.setEnabled(true);
         
-        JOptionPane.showMessageDialog(this, "Pemesanan berhasil!\nStok telah disimpan permanen.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        showStyledDialog("[OK] Pemesanan berhasil!\nStok telah disimpan permanen.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void simpanPDF() {
@@ -591,12 +746,16 @@ public class Main extends JFrame {
                 document.add(p);
 
                 document.close();
-                JOptionPane.showMessageDialog(this, "Struk berhasil disimpan ke:\n" + filePath, "Sukses PDF", JOptionPane.INFORMATION_MESSAGE);
+                showStyledDialog("[OK] Struk berhasil disimpan ke:\n" + filePath, "Sukses PDF", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Gagal menyimpan PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showStyledDialog("[ERROR] Gagal menyimpan PDF: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private void showStyledDialog(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
     private String truncate(String str, int length) {
