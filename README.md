@@ -42,7 +42,7 @@ This project strictly follows **SOLID Principles** and implements three major De
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack 
 
 * **Language:** Java (JDK 17+)
 * **GUI Framework:** Java Swing (Modern Dark Theme)
@@ -50,30 +50,6 @@ This project strictly follows **SOLID Principles** and implements three major De
 * **Libraries:**
     * `iTextPDF` (for PDF generation)
 * **Persistence:** Java IO (Object Serialization)
-
----
-
-## 📂 Project Structure
-
-```bash
-com.bioskop
-├── data
-│   └── CinemaData.java      # Singleton Database & File Handling
-├── model
-│   ├── Film.java            # POJO for Movie
-│   └── User.java            # POJO for User
-├── strategy
-│   ├── PricingStrategy.java # Strategy Interface
-│   ├── HargaNormal.java
-│   ├── HargaWeekend.java
-│   └── DiskonMember.java
-├── tiket
-│   ├── Tiket.java           # Decorator Component
-│   ├── TiketFilm.java
-│   └── (Decorator Classes)
-├── util
-│   └── Repository.java      # Generic Interface
-└── Main.java                # GUI Entry Point
 
 ---
 
