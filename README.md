@@ -74,3 +74,46 @@ com.bioskop
 ├── util
 │   └── Repository.java      # Generic Interface
 └── Main.java                # GUI Entry Point
+
+## 🚀 How to Run
+
+### Prerequisites
+Before running the application, ensure you have the following installed:
+* **Java Development Kit (JDK) 17** or newer.
+* **Apache Maven** (for managing dependencies like iText).
+* **IDE** (IntelliJ IDEA, VS Code, or NetBeans) is recommended.
+
+### Installation Steps
+
+1.  **Clone the Repository**
+    Open your terminal or command prompt and run:
+    ```bash
+    git clone [https://github.com/username-kalian/cinema-booking-system.git](https://github.com/username-kalian/cinema-booking-system.git)
+    cd cinema-booking-system
+    ```
+
+2.  **Load Project**
+    * Open your IDE.
+    * Select **Open Project** and choose the `pom.xml` file or the project folder.
+    * Wait for Maven to download all dependencies (especially `iTextPDF`).
+
+3.  **Run the Application**
+    * Navigate to: `src/main/java/com/bioskop/Main.java`
+    * Right-click on the file and select **Run 'Main'**.
+
+    *Alternatively, via Terminal:*
+    ```bash
+    mvn clean compile exec:java -Dexec.mainClass="com.bioskop.Main"
+    ```
+
+---
+
+## 👥 Authors (Team Kelas 2C)
+
+This project was crafted with ❤️ by our team as a Final Project for the Object-Oriented Programming course.
+
+| NIM | Name | Role | Key Responsibilities |
+| :--- | :--- | :--- | :--- |
+| **[241511068]** | **[Andhini Widya Putri Wastika]** | Frontend Engineer | • GUI Layout & Design<br>• Ticket Logic (Decorator Pattern)<br>• User Experience |
+| **[241511085]** | **[Nezya Zulfa Fauziah]** | Backend Architect | • Database Design (Singleton)<br>• File Persistence (Serialization)<br>• Repository Pattern |
+| **[241511090]** | **[Siti Soviyyah]** | Logic & QA Lead | • Pricing Logic (Strategy Pattern)<br>• Unit Testing (JUnit)<br>• PDF Report Integration |
