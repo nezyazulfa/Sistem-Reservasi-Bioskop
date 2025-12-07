@@ -75,6 +75,8 @@ com.bioskop
 │   └── Repository.java      # Generic Interface
 └── Main.java                # GUI Entry Point
 
+---
+
 ## 🚀 How to Run
 
 ### Prerequisites
